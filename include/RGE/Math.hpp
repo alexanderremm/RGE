@@ -14,7 +14,7 @@ namespace RGE
 			int x = 0;
 			int y = 0;
 
-			v2i(int x, int y) { x = x, y = y; }
+			v2i(int x1, int y1) { x = x1, y = y1; }
 		};
 		// 2d float vector
 		struct v2f
@@ -22,7 +22,7 @@ namespace RGE
 			float x = 0.0f;
 			float y = 0.0f;
 
-			v2f(float x, float y) { x = x, y = y; }
+			v2f(float x1, float y1) { x = x1, y = y1; }
 		};
 	};
 } // RGE
