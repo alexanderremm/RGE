@@ -115,6 +115,30 @@ namespace RGE
 
 		return true;
 	#endif // _WIN32
+
+	#ifdef __linux__
+	m_display = XOpenDisplay(NULL);
+	if (m_display == NULL)
+	{
+		// Failed to initialize the display
+		return false;
+	}
+
+	m_screen = DefaultScreen(m_display);
+
+	m_window = XCreateSimpleWindow(m_display,
+		RootWindow(m_display, m_screen), 10, 10,
+		m_width, m_height, 1, BlackPixel(m_display, m_screen),
+		WhitePixel(m_display, m_screen));
+
+	XSelectInput(m_display, m_window, ExposureMask | KeyPressMask | ButtonPressMask);
+	XMapWindow(m_display, m_window);
+
+	// Prevent the window from closing
+	m_closeWindow = false;
+
+	return true;
+	#endif // __linux__
 	}
 
 	// Poll for any window events
