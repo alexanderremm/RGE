@@ -9,7 +9,7 @@
 #include "WIN32_Window.hpp"
 #endif // _WIN32
 
-#ifdef unix
+#ifdef __linux__
 #include "Unix_Window.hpp"
 #endif // unix
 

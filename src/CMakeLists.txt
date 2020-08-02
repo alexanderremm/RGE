@@ -28,6 +28,12 @@ target_compile_features(RGE PUBLIC cxx_std_11)
 # IDEs should put the headers in a nice place
 source_group(TREE "${PROJECT_SOURCE_DIR}/include" PREFIX "Header Files" FILES ${HEADER_LIST})
 
+# Link libraries
+if (UNIX)
+        find_package(X11 REQUIRED)
+        target_link_libraries(RGE ${X11_LIBRARIES})
+endif()
+
 # Set the install location
 install(TARGETS RGE
         RUNTIME DESTINATION bin

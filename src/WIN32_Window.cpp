@@ -2,7 +2,7 @@
 
 namespace RGE
 {
-	Window::Window(const char* windowName, Math::v2i& dims)
+	GWindow::GWindow(const char* windowName, const Math::v2i& dims)
 	{
 		m_name = windowName;
 		m_width = dims.x;
@@ -15,13 +15,13 @@ namespace RGE
 		}
 	}
 
-	Window::~Window()
+	GWindow::~GWindow()
 	{
 		m_handle = nullptr;
 	}
 
 	// Poll for any window events
-	void Window::PollEvent()
+	void GWindow::PollEvent()
 	{
 		if (GetMessage(&m_msg, NULL, 0, 0))
 		{
@@ -31,19 +31,19 @@ namespace RGE
 	}
 
 	// Determine if the window should close or not
-	bool Window::ShouldClose()
+	bool GWindow::ShouldClose()
 	{
 		return m_closeWindow;
 	}
 
-	LRESULT CALLBACK Window::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+	LRESULT CALLBACK GWindow::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-		Window* pThis = NULL;
+		GWindow* pThis = NULL;
 
 		if (uMsg == WM_NCCREATE)
 		{
 			CREATESTRUCT* pCreate = (CREATESTRUCT*)lParam;
-			pThis = (Window*)pCreate->lpCreateParams;
+			pThis = (GWindow*)pCreate->lpCreateParams;
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)pThis);
 
 			pThis->m_handle = hwnd;
@@ -51,7 +51,7 @@ namespace RGE
 		}
 		else
 		{
-			pThis = (Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+			pThis = (GWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 		}
 		if (pThis)
 		{
@@ -63,7 +63,7 @@ namespace RGE
 		}
 	}
 
-	LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
+	LRESULT GWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		switch (uMsg)
 		{
@@ -87,10 +87,10 @@ namespace RGE
 		return TRUE;
 	}
 
-	bool Window::Init()
+	bool GWindow::Init()
 	{
 		// Register the window class
-		m_wc.lpfnWndProc = Window::WindowProc;
+		m_wc.lpfnWndProc = GWindow::WindowProc;
 		m_wc.hInstance = GetModuleHandle(0);
 		m_wc.lpszClassName = m_name;
 

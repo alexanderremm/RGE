@@ -8,11 +8,11 @@
 
 namespace RGE
 {
-	class Window
+	class GWindow
 	{
 	public:
-		Window(const char* windowName, Math::v2i& dims);
-		~Window();
+		GWindow(const char* windowName, const Math::v2i& dims);
+		~GWindow();
 
 		bool Init();
 		void PollEvent();
