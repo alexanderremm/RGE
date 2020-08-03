@@ -1,4 +1,4 @@
 # RGE
 **R**oof **G**oose **E**ngine aka "Reggie"
 
-Cross platform engine using OpenGL as a backend.
+Cross platform game engine using OpenGL as a backend.
