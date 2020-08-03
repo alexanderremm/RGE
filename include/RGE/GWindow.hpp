@@ -14,6 +14,7 @@
 
 #ifdef __linux__
 #include <X11/Xlib.h>
+#include <GL/gl.h>
 #endif // unix
 
 #include "Math.hpp"

@@ -19,8 +19,9 @@ source_group(TREE "${PROJECT_SOURCE_DIR}/include" PREFIX "Header Files" FILES ${
 
 # Link libraries
 if (UNIX)
+        find_package(OpenGL REQUIRED)
         find_package(X11 REQUIRED)
-        target_link_libraries(RGE ${X11_LIBRARIES})
+        target_link_libraries(RGE ${X11_LIBRARIES} ${OPENGL_LIBRARIES})
 endif()
 
 # Set the install location
