@@ -64,6 +64,8 @@ namespace RGE
 		Display* m_display;
 		int m_screen;
 		Window m_window;
+
+		Atom m_wmDeleteMessage; // Window deletion message
 		#endif // __linux__
 
 	};

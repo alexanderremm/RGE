@@ -164,7 +164,15 @@ namespace RGE
 		m_width, m_height, 1, BlackPixel(m_display, m_screen),
 		WhitePixel(m_display, m_screen));
 
+	// Set the name of the window
+	XStoreName(m_display, m_window, m_name);
+
 	XSelectInput(m_display, m_window, ExposureMask | KeyPressMask | ButtonPressMask);
+   	
+	// Register interest in the delete window message
+   	m_wmDeleteMessage = XInternAtom(m_display, "WM_DELETE_WINDOW", False);
+   	XSetWMProtocols(m_display, m_window, &m_wmDeleteMessage, 1);
+	
 	XMapWindow(m_display, m_window);
 
 	// Prevent the window from closing
@@ -189,7 +197,7 @@ namespace RGE
 		XEvent e;
 		XNextEvent(m_display, &e);
 
-		if (e.type == KeyPress)
+		if (e.type == ClientMessage && e.xclient.data.l[0] == m_wmDeleteMessage) 
 		{
 			m_closeWindow = true;
 		}
