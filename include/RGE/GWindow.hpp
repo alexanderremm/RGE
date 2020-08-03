@@ -7,7 +7,9 @@
 
 #ifdef _WIN32
 #include <Windows.h>
-//#pragma comment (lib, "opengl32.lib")
+#include <gl/GL.h>
+
+#pragma comment (lib, "opengl32.lib")
 #endif // _WIN32
 
 #ifdef __linux__
@@ -29,6 +31,7 @@ namespace RGE
 		bool Init();
 		void PollEvent();
 		bool ShouldClose();
+		void FlipDisplay();
 
 	private:
 		const char* m_name;
@@ -47,6 +50,11 @@ namespace RGE
 		HWND m_handle;
 		HINSTANCE m_instance;
 
+		// OpenGL vars
+		HDC m_deviceContext;
+		HGLRC m_glRenderingContext;
+
+		// Event vars
 		MSG m_msg = {};
 		#endif // _WIN32
 

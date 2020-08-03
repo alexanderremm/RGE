@@ -34,12 +34,46 @@ namespace RGE
 
 		if (uMsg == WM_NCCREATE)
 		{
+			PIXELFORMATDESCRIPTOR pfd =
+			{
+				sizeof(PIXELFORMATDESCRIPTOR),
+				1,
+				PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER, // Flags
+				PFD_TYPE_RGBA,												// The kind of framebuffer, RGBA or palette
+				24,															// Colordepth of the framebuffer
+				0, 0, 0, 0, 0, 0,
+				0,
+				0,
+				0,
+				0, 0, 0, 0,
+				32,															// Number of bits for the depth buffer
+				0,															// Number of bits for the stencil buffer
+				0,															// Number of Aux buffers in the framebuffer
+				PFD_MAIN_PLANE,
+				0,
+				0, 0, 0
+			};
+
 			CREATESTRUCT* pCreate = (CREATESTRUCT*)lParam;
 			pThis = (GWindow*)pCreate->lpCreateParams;
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)pThis);
-
+			
+			// Set window properties
 			pThis->m_handle = hwnd;
 			pThis->m_closeWindow = false;
+
+			// OpenGL context creation
+			pThis->m_deviceContext = GetDC(hwnd);
+			int wcpf; // Windows chosen pixel format
+			wcpf = ChoosePixelFormat(pThis->m_deviceContext, &pfd);
+			SetPixelFormat(pThis->m_deviceContext, wcpf, &pfd);
+
+			pThis->m_glRenderingContext = wglCreateContext(pThis->m_deviceContext);
+			wglMakeCurrent(pThis->m_deviceContext, pThis->m_glRenderingContext);
+
+			glViewport(0, 0, pThis->m_width, pThis->m_height);
+
+			MessageBoxA(0, (char*)glGetString(GL_VERSION), "OpenGL Version", 0); // Test display box
 		}
 		else
 		{
@@ -60,16 +94,15 @@ namespace RGE
 		switch (uMsg)
 		{
 		case WM_DESTROY:
+			ReleaseDC(m_handle, m_deviceContext);
+			wglDeleteContext(m_glRenderingContext); // Delete the OpenGL rendering context
 			PostQuitMessage(0);
 			m_closeWindow = true;
 			return 0;
 
 		case WM_PAINT:
 		{
-			PAINTSTRUCT ps;
-			HDC hdc = BeginPaint(m_handle, &ps);
-			FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
-			EndPaint(m_handle, &ps);
+			
 		}
 		return 0;
 
@@ -92,7 +125,7 @@ namespace RGE
 
 		// Create the window
 		m_handle = CreateWindowEx(
-			CS_OWNDC,													// Optional window styles.
+			CS_OWNDC,													// Optional window styles
 			m_name,														// Window class
 			m_name,														// Window text
 			(WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX),	// Window style
@@ -167,6 +200,13 @@ namespace RGE
 	bool GWindow::ShouldClose()
 	{
 		return m_closeWindow;
+	}
+
+	void GWindow::FlipDisplay()
+	{
+	#ifdef _WIN32
+		SwapBuffers(m_deviceContext);
+	#endif // _WIN32
 	}
 
 } // RGE
