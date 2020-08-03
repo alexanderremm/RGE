@@ -1,4 +1,4 @@
-#include "RGE/WIN32_Window.hpp"
+#include "RGE/GWindow.hpp"
 
 namespace RGE
 {
@@ -17,25 +17,17 @@ namespace RGE
 
 	GWindow::~GWindow()
 	{
+	#ifdef _WIN32
 		m_handle = nullptr;
+	#endif // _WIN32
+
+	#ifdef __linux__
+		XCloseDisplay(m_display);
+	#endif // __linux__
 	}
 
-	// Poll for any window events
-	void GWindow::PollEvent()
-	{
-		if (GetMessage(&m_msg, NULL, 0, 0))
-		{
-			TranslateMessage(&m_msg);
-			DispatchMessage(&m_msg);
-		}
-	}
-
-	// Determine if the window should close or not
-	bool GWindow::ShouldClose()
-	{
-		return m_closeWindow;
-	}
-
+	// ---- Windows Specific Methods ---- //
+	#ifdef _WIN32
 	LRESULT CALLBACK GWindow::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		GWindow* pThis = NULL;
@@ -86,9 +78,11 @@ namespace RGE
 		}
 		return TRUE;
 	}
+	#endif // _WIN32
 
 	bool GWindow::Init()
 	{
+	#ifdef _WIN32
 		// Register the window class
 		m_wc.lpfnWndProc = GWindow::WindowProc;
 		m_wc.hInstance = GetModuleHandle(0);
@@ -120,6 +114,35 @@ namespace RGE
 		ShowWindow(m_handle, SW_SHOWDEFAULT);
 
 		return true;
+	#endif // _WIN32
+	}
+
+	// Poll for any window events
+	void GWindow::PollEvent()
+	{
+	#ifdef _WIN32
+		if (GetMessage(&m_msg, NULL, 0, 0))
+		{
+			TranslateMessage(&m_msg);
+			DispatchMessage(&m_msg);
+		}
+	#endif // _WIN32
+
+	#ifdef __linux__
+		XEvent e;
+		XNextEvent(m_display, &e);
+
+		if (e.type == KeyPress)
+		{
+			m_closeWindow = true;
+		}
+	#endif // __linux__
+	}
+
+	// Determine if the window should close or not
+	bool GWindow::ShouldClose()
+	{
+		return m_closeWindow;
 	}
 
 } // RGE

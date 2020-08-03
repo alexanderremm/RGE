@@ -1,4 +1,4 @@
-#include "RGE/Window.hpp"
+#include "RGE/GWindow.hpp"
 
 int main()
 {
