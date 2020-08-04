@@ -22,7 +22,8 @@ namespace RGE
 	#endif // _WIN32
 
 	#ifdef __linux__
-		XCloseDisplay(m_display);
+		m_display = nullptr;
+		m_vi = nullptr;
 	#endif // __linux__
 	}
 
@@ -150,35 +151,54 @@ namespace RGE
 	#endif // _WIN32
 
 	#ifdef __linux__
-	m_display = XOpenDisplay(NULL);
-	if (m_display == NULL)
-	{
-		// Failed to initialize the display
-		return false;
-	}
+		m_display = XOpenDisplay(NULL);
+		
+		if (m_display == NULL)
+		{
+			// Failed to initialize the display
+			return false;
+		}
 
-	m_screen = DefaultScreen(m_display);
+		m_screen = DefaultScreen(m_display);
 
-	m_window = XCreateSimpleWindow(m_display,
-		RootWindow(m_display, m_screen), 10, 10,
-		m_width, m_height, 1, BlackPixel(m_display, m_screen),
-		WhitePixel(m_display, m_screen));
+		GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
+		m_vi = glXChooseVisual(m_display, 0, att);
 
-	// Set the name of the window
-	XStoreName(m_display, m_window, m_name);
+		if (m_vi == NULL)
+		{
+			// Log: no appropriate visual found
+			return false;
+		}
 
-	XSelectInput(m_display, m_window, ExposureMask | KeyPressMask | ButtonPressMask);
-   	
-	// Register interest in the delete window message
-   	m_wmDeleteMessage = XInternAtom(m_display, "WM_DELETE_WINDOW", False);
-   	XSetWMProtocols(m_display, m_window, &m_wmDeleteMessage, 1);
-	
-	XMapWindow(m_display, m_window);
+		m_cmap = XCreateColormap(m_display, DefaultRootWindow(m_display), m_vi->visual, AllocNone);
 
-	// Prevent the window from closing
-	m_closeWindow = false;
+		m_swa.colormap = m_cmap;
+		m_swa.event_mask = ExposureMask | KeyPressMask | ButtonPressMask;
 
-	return true;
+		m_window = XCreateWindow(m_display, DefaultRootWindow(m_display), 
+			0, 0, 
+			m_width, m_height, 0, 
+			m_vi->depth, InputOutput, m_vi->visual, 
+			CWColormap | CWEventMask, &m_swa);
+
+		// Set the name of the window
+		XStoreName(m_display, m_window, m_name);
+		
+		// Register interest in the delete window message
+		m_wmDeleteMessage = XInternAtom(m_display, "WM_DELETE_WINDOW", False);
+		XSetWMProtocols(m_display, m_window, &m_wmDeleteMessage, 1);
+		
+		XMapWindow(m_display, m_window);
+
+		// Create OpenGL context
+		m_glRenderingContext = glXCreateContext(m_display, m_vi, NULL, GL_TRUE);
+		glXMakeCurrent(m_display, m_window, m_glRenderingContext);
+		glViewport(0, 0, m_width, m_height);
+
+		// Prevent the window from closing
+		m_closeWindow = false;
+
+		return true;
 	#endif // __linux__
 	}
 
@@ -195,9 +215,17 @@ namespace RGE
 
 	#ifdef __linux__
 		XEvent e;
+		while(XPending(m_display))
 		XNextEvent(m_display, &e);
 
 		if (e.type == ClientMessage && e.xclient.data.l[0] == m_wmDeleteMessage) 
+		{
+			glXMakeCurrent(m_display, None, NULL);
+			glXDestroyContext(m_display, m_glRenderingContext);
+			m_closeWindow = true;
+		}
+
+		if (e.type == KeyPress)
 		{
 			m_closeWindow = true;
 		}
@@ -215,6 +243,10 @@ namespace RGE
 	#ifdef _WIN32
 		SwapBuffers(m_deviceContext);
 	#endif // _WIN32
+
+	#ifdef __linux__
+		glXSwapBuffers(m_display, m_window);
+	#endif // __linux__
 	}
 
 } // RGE

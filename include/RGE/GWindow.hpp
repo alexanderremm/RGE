@@ -15,6 +15,7 @@
 #ifdef __linux__
 #include <X11/Xlib.h>
 #include <GL/gl.h>
+#include <GL/glx.h>
 #endif // unix
 
 #include "Math.hpp"
@@ -64,8 +65,14 @@ namespace RGE
 		Display* m_display;
 		int m_screen;
 		Window m_window;
+		XVisualInfo* m_vi;
+		Colormap m_cmap;
+		XSetWindowAttributes m_swa;
 
 		Atom m_wmDeleteMessage; // Window deletion message
+
+		// OpenGL vars
+		GLXContext m_glRenderingContext;
 		#endif // __linux__
 
 	};
