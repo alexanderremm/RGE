@@ -73,8 +73,6 @@ namespace RGE
 			wglMakeCurrent(pThis->m_deviceContext, pThis->m_glRenderingContext);
 
 			glViewport(0, 0, pThis->m_width, pThis->m_height);
-
-			MessageBoxA(0, (char*)glGetString(GL_VERSION), "OpenGL Version", 0); // Test display box
 		}
 		else
 		{
