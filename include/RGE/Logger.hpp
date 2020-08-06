@@ -59,12 +59,16 @@ namespace RGE
 
 			// Get the current time
 			time_t rawTime;
-			struct tm* timeInfo;
+			struct tm timeInfo;
 			char dateTimeString[25];
 
 			time(&rawTime);
-			timeInfo = localtime(&rawTime);
-			strftime(dateTimeString, sizeof(dateTimeString), "%F | %X | ", timeInfo);
+		#ifdef _WIN32
+			localtime_s(&timeInfo, &rawTime); // Thread-safe windows implementation
+		#elif defined(__linux__)
+			localtime_r(&rawTime, &timeInfo); // Thread-safe linux implementation
+		#endif // _WIN32
+			strftime(dateTimeString, sizeof(dateTimeString), "%F | %X | ", &timeInfo);
 
 		#ifdef _WIN32
 			int label_color;
