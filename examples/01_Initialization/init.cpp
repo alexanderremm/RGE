@@ -18,6 +18,8 @@ int main()
 	{
 		window.PollEvent();
 
+		RGE::Logger::LOG(RGE::LOG_DEBUG, "Rotation value: ", theta);
+
 		// OpenGL drawing
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);

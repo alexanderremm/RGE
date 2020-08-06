@@ -50,8 +50,8 @@ namespace RGE
 
 		}
 
-		template<typename T>
-		static void LOG(LOG_LEVEL logLevel, T msg)
+		template<typename First, typename... Args>
+		static void LOG(LOG_LEVEL logLevel, First msg, Args... msgs)
 		{
 		#ifdef _WIN32
 			HANDLE chandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -113,8 +113,12 @@ namespace RGE
 			// Build the log message
 			// Format: Date | Time | [Log Level]: Message
 			std::stringstream logMessage;
-			logMessage << msg << std::endl;
 
+			// Unpack parameter values and add to the log message
+			LOG(logMessage, msg, msgs...);
+			logMessage << std::endl;
+
+			// Print the actual log message
 		#ifdef _WIN32
 			std::cout << dateTimeString;
 			SetConsoleColor(label_color);
@@ -132,14 +136,27 @@ namespace RGE
 		}
 
 	private:
+		// Recursive variadic parameter unpacking functions
+		// See: https://raymii.org/s/snippets/Cpp_variadic_template_recursive_example.html
+		template<typename T>
+		static void LOG(std::stringstream &ss, T arg)
+		{
+			ss << arg;
+		}
+
+		template<typename First, typename ...Args>
+		static void LOG(std::stringstream& ss, First first, Args ...args)
+		{
+			LOG(ss, first);
+			LOG(ss, args...);
+		}
+
 	#ifdef _WIN32
-	
 		static void SetConsoleColor(int colorCode)
 		{
 			HANDLE cHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 			SetConsoleTextAttribute(cHandle, colorCode);
 		}
-		
 	#endif // _WIN32
 
 	};
