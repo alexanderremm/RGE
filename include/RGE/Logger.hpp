@@ -3,7 +3,10 @@
 
 #include <sstream>
 #include <time.h>
+
+#ifdef _WIN32
 #include <Windows.h>
+#endif // _WIN32
 
 namespace RGE
 {
@@ -27,12 +30,12 @@ namespace RGE
 	constexpr auto DEFAULT_COLOR = 7;
 	#endif // _WIN32
 
-	#ifdef linux
+	#ifdef __linux__
 	constexpr auto RED = "[1;31m";
 	constexpr auto BLUE = "[1;34m";
 	constexpr auto YELLOW = "[1;33m";
 	constexpr auto DEFAULT_COLOR = "[0m";
-	#endif // linux
+	#endif // __linux__
 
 	class Logger
 	{
@@ -56,12 +59,12 @@ namespace RGE
 
 			// Get the current time
 			time_t rawTime;
-			struct tm timeInfo;
+			struct tm* timeInfo;
 			char dateTimeString[25];
 
 			time(&rawTime);
-			localtime_s(&timeInfo, &rawTime);
-			strftime(dateTimeString, sizeof(dateTimeString), "%F | %X | ", &timeInfo);
+			timeInfo = localtime(&rawTime);
+			strftime(dateTimeString, sizeof(dateTimeString), "%F | %X | ", timeInfo);
 
 		#ifdef _WIN32
 			int label_color;
@@ -69,11 +72,11 @@ namespace RGE
 			const char* level = "";
 		#endif // _WIN32
 
-		#ifdef linux
+		#ifdef __linux__
 			const char* label_color = "";
 			const char* msg_color = "";
 			const char* level = "";
-		#endif // linux
+		#endif // __linux__
 
 			if (logLevel == LOG_INFO)
 			{
@@ -117,10 +120,10 @@ namespace RGE
 			SetConsoleColor(DEFAULT_COLOR);
 		#endif // _WIN32
 			
-		#ifdef linux
+		#ifdef __linux__
 			// See: https://stackoverflow.com/questions/2353430/how-can-i-print-to-the-console-in-color-in-a-cross-platform-manner for more information about coloring the console
 			printf("%s%c%s%s%c%s%s%c%s", dateTimeString, 27, label_color, level, 27, msg_color, logMessage.str().c_str(), 27, DEFAULT_COLOR);
-		#endif // linux
+		#endif // __linux__
 
 		}
 
