@@ -6,10 +6,9 @@ int main()
 	// Create a window context
 	RGE::GWindow window = RGE::GWindow("Test Window", RGE::Math::v2i(800, 600));
 
-	RGE::Logger::LOG(RGE::LOG_INFO, "Started the Game window");
-	RGE::Logger::LOG(RGE::LOG_DEBUG, "Test!");
-	RGE::Logger::LOG(RGE::LOG_WARN, "Failed to recognize input mechanism!");
-	RGE::Logger::LOG(RGE::LOG_ERROR, "The game has crashed!");
+	// Create a logger
+	RGE::Logger logger("DEBUG.log");
+	logger.LOG(RGE::LOG_INFO, "Started the Game window");
 
 	float theta = 0.0f;
 
@@ -18,7 +17,7 @@ int main()
 	{
 		window.PollEvent();
 
-		RGE::Logger::LOG(RGE::LOG_DEBUG, "Rotation value: ", theta);
+		logger.LOG(RGE::LOG_DEBUG, "Rotation value: ", theta);
 
 		// OpenGL drawing
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -38,6 +37,8 @@ int main()
 		
 		theta += 0.1f;
 	}
+
+	logger.LOG(RGE::LOG_INFO, "Closing the game window");
 
 	return 0;
 }

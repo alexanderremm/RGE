@@ -1,12 +1,15 @@
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
 
+#include <fstream>
 #include <sstream>
 #include <time.h>
 
 #ifdef _WIN32
 #include <Windows.h>
 #endif // _WIN32
+
+#include "Util.hpp"
 
 namespace RGE
 {
@@ -40,18 +43,98 @@ namespace RGE
 	class Logger
 	{
 	public:
-		Logger(const char* fileName = nullptr)
+		Logger(const char* fileName = "")
 		{
-			
+			// Check if the log file already exists
+			if (FileExists(fileName))
+			{
+				LOG(LOG_WARN, "Log file: ", fileName, " already exists!");
+			}
+
+			m_logFile.open(fileName, std::fstream::out);
+
+			// Make sure the log file was created
+			if (!m_logFile)
+			{
+				LOG(LOG_ERROR, "Failed to create the log file: ", fileName);
+				LOG(LOG_INFO, "Check permissions or ensure that the file does not exists already");
+			}
+
+			m_logFileCreated = true;
 		}
 
 		~Logger()
 		{
-
+			m_logFile.close();
 		}
 
 		template<typename First, typename... Args>
-		static void LOG(LOG_LEVEL logLevel, First msg, Args... msgs)
+		void LOG(LOG_LEVEL logLevel, First msg, Args... msgs)
+		{
+			LOGC(logLevel, msg, msgs...);
+			LOGF(logLevel, msg, msgs...);
+		}
+
+		// Logs information to a file, requires an instance of the Logger
+		template<typename First, typename... Args>
+		void LOGF(LOG_LEVEL logLevel, First msg, Args... msgs)
+		{
+			// Make sure the log file exists before we write to it
+			if (m_logFileCreated)
+			{
+				// Create the log message (no coloring information)
+				// Get the current time
+				time_t rawTime;
+				struct tm timeInfo;
+				char dateTimeString[25];
+
+				time(&rawTime);
+			#ifdef _WIN32
+				localtime_s(&timeInfo, &rawTime); // Thread-safe windows implementation
+			#elif defined(__linux__)
+				localtime_r(&rawTime, &timeInfo); // Thread-safe linux implementation
+			#endif // _WIN32
+				strftime(dateTimeString, sizeof(dateTimeString), "%F | %X | ", &timeInfo);
+
+				const char* level = "";
+
+				// TODO: Use a switch statement
+				if (logLevel == LOG_INFO)
+				{
+					level = "[INFO]: ";
+				}
+
+				else if (logLevel == LOG_DEBUG)
+				{
+					level = "[DEBUG]: ";
+				}
+
+				else if (logLevel == LOG_WARN)
+				{
+					level = "[WARN]: ";
+				}
+
+				else if (logLevel == LOG_ERROR)
+				{
+					level = "[ERROR]: ";
+				}
+
+				// Build the log message
+				// Format: Date | Time | [Log Level]: Message
+				std::stringstream logMessage;
+
+				// Unpack parameter values and add to the log message
+				LOG(logMessage, msg, msgs...);
+
+				// Write the output to the log file
+				m_logFile << dateTimeString << level << logMessage.str() << std::endl;
+
+			}
+		}
+
+		// Logs information to the console
+		template<typename First, typename... Args>
+		static void LOGC(LOG_LEVEL logLevel, First msg, Args... msgs)
 		{
 		#ifdef _WIN32
 			HANDLE chandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -82,6 +165,7 @@ namespace RGE
 			const char* level = "";
 		#endif // __linux__
 
+			// TODO: Use a switch statement
 			if (logLevel == LOG_INFO)
 			{
 				label_color = DEFAULT_COLOR;
@@ -158,6 +242,9 @@ namespace RGE
 			SetConsoleTextAttribute(cHandle, colorCode);
 		}
 	#endif // _WIN32
+
+		bool m_logFileCreated = false;
+		std::fstream m_logFile;
 
 	};
 
