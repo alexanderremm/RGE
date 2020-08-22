@@ -2,10 +2,10 @@
 # show up in IDEs unless they are listed in add_library.
 
 # Grab list of header and src files
-file(GLOB HEADER_LIST CONFIGURE_DEPENDS "${RGE_SOURCE_DIR}/include/RGE/*.hpp")
-file(GLOB SRC_LIST CONFIGURE_DEPENDS "${RGE_SOURCE_DIR}/src/*.cpp" "${RGE_SOURCE_DIR}/src/*.hpp")
+file(GLOB_RECURSE HEADER_LIST CONFIGURE_DEPENDS "${RGE_SOURCE_DIR}/include/*.hpp")
+file(GLOB_RECURSE SRC_LIST CONFIGURE_DEPENDS "${RGE_SOURCE_DIR}/src/*.cpp" "${RGE_SOURCE_DIR}/src/*.hpp")
 
-# Make an automatic library - will be static or dynamic based on user setting
+# Create the library
 add_library(RGE ${SRC_LIST} ${HEADER_LIST})
 
 # We need this directory, and users of our library will need it too

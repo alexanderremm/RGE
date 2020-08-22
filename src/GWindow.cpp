@@ -11,17 +11,24 @@ namespace RGE
 		bool ready = Init();
 		if (!ready)
 		{
-			// TODO: Log error
+			RGE::Logger::LOGC(RGE::LOG_ERROR, "Failed to initialize the window!");
 		}
 	}
 
 	GWindow::~GWindow()
 	{
 	#ifdef _WIN32
+		ReleaseDC(m_handle, m_deviceContext);
+		wglDeleteContext(m_glRenderingContext); // Delete the OpenGL rendering context
+		PostQuitMessage(0);
+
 		m_handle = nullptr;
 	#endif // _WIN32
 
 	#ifdef __linux__
+		glXMakeCurrent(m_display, None, NULL);
+		glXDestroyContext(m_display, m_glRenderingContext);
+
 		m_display = nullptr;
 		m_vi = nullptr;
 	#endif // __linux__
@@ -61,7 +68,6 @@ namespace RGE
 			
 			// Set window properties
 			pThis->m_handle = hwnd;
-			pThis->m_closeWindow = false;
 
 			// OpenGL context creation
 			pThis->m_deviceContext = GetDC(hwnd);
@@ -93,17 +99,111 @@ namespace RGE
 		switch (uMsg)
 		{
 		case WM_DESTROY:
-			ReleaseDC(m_handle, m_deviceContext);
-			wglDeleteContext(m_glRenderingContext); // Delete the OpenGL rendering context
-			PostQuitMessage(0);
-			m_closeWindow = true;
+		{
+			// Generate an event and push it to the event queue
+			Event* e = new Event;
+			e->type = EventType::WindowClose;
+
+			m_eventQueue.AddEvent(e);
 			return 0;
+		}
+
+		case WM_KEYDOWN:
+		{
+			// Generate an event and push it to the event queue
+			Event* e = new Event;
+			e->type = EventType::KeyPressed;
+			e->key.keycode = wParam;
+			e->key.repeated = (lParam >> 30) & 1;
+
+			m_eventQueue.AddEvent(e);
+			return 0;
+		}
+
+		case WM_KEYUP:
+		{
+			// Generate an event and push it to the event queue
+			Event* e = new Event;
+			e->type = EventType::KeyReleased;
+			e->key.keycode = wParam;
+			e->key.repeated = (lParam >> 30) & 1;
+
+			m_eventQueue.AddEvent(e);
+			return 0;
+		}
+
+		// MouseButtonDown events
+		case WM_LBUTTONDOWN:
+		{
+			Event* e = new Event;
+			e->type = EventType::MouseButtonPressed;
+			e->mouse.button = 1;
+			e->mouse.pos = RGE::Math::v2i(LOWORD(lParam), HIWORD(lParam));
+
+			m_eventQueue.AddEvent(e);
+			return 0;
+		}
+
+		case WM_MBUTTONDOWN:
+		{
+			Event* e = new Event;
+			e->type = EventType::MouseButtonPressed;
+			e->mouse.button = 2;
+			e->mouse.pos = RGE::Math::v2i(LOWORD(lParam), HIWORD(lParam));
+
+			m_eventQueue.AddEvent(e);
+			return 0;
+		}
+
+		case WM_RBUTTONDOWN:
+		{
+			Event* e = new Event;
+			e->type = EventType::MouseButtonPressed;
+			e->mouse.button = 3;
+			e->mouse.pos = RGE::Math::v2i(LOWORD(lParam), HIWORD(lParam));
+
+			m_eventQueue.AddEvent(e);
+			return 0;
+		}
+
+		// MouseButtonUp events
+		case WM_LBUTTONUP:
+		{
+			Event* e = new Event;
+			e->type = EventType::MouseButtonReleased;
+			e->mouse.button = 1;
+			e->mouse.pos = RGE::Math::v2i(LOWORD(lParam), HIWORD(lParam));
+
+			m_eventQueue.AddEvent(e);
+			return 0;
+		}
+
+		case WM_MBUTTONUP:
+		{
+			Event* e = new Event;
+			e->type = EventType::MouseButtonReleased;
+			e->mouse.button = 2;
+			e->mouse.pos = RGE::Math::v2i(LOWORD(lParam), HIWORD(lParam));
+
+			m_eventQueue.AddEvent(e);
+			return 0;
+		}
+
+		case WM_RBUTTONUP:
+		{
+			Event* e = new Event;
+			e->type = EventType::MouseButtonReleased;
+			e->mouse.button = 3;
+			e->mouse.pos = RGE::Math::v2i(LOWORD(lParam), HIWORD(lParam));
+
+			m_eventQueue.AddEvent(e);
+			return 0;
+		}
 
 		case WM_PAINT:
 		{
-			
+			return 0;
 		}
-		return 0;
 
 		default:
 			return DefWindowProc(m_handle, uMsg, wParam, lParam);
@@ -171,7 +271,7 @@ namespace RGE
 		m_cmap = XCreateColormap(m_display, DefaultRootWindow(m_display), m_vi->visual, AllocNone);
 
 		m_swa.colormap = m_cmap;
-		m_swa.event_mask = ExposureMask | KeyPressMask | ButtonPressMask;
+		m_swa.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask;
 
 		m_window = XCreateWindow(m_display, DefaultRootWindow(m_display), 
 			0, 0, 
@@ -181,6 +281,12 @@ namespace RGE
 
 		// Set the name of the window
 		XStoreName(m_display, m_window, m_name);
+
+		// Set the recommended window size (Note: some windowing managers will ignore this)
+		XSizeHints sh;
+		sh.min_width = m_width; sh.min_height = m_height;
+		sh.max_width = m_width; sh.max_height = m_height;
+		XSetWMNormalHints(m_display, m_window, &sh);
 		
 		// Register interest in the delete window message
 		m_wmDeleteMessage = XInternAtom(m_display, "WM_DELETE_WINDOW", False);
@@ -193,15 +299,12 @@ namespace RGE
 		glXMakeCurrent(m_display, m_window, m_glRenderingContext);
 		glViewport(0, 0, m_width, m_height);
 
-		// Prevent the window from closing
-		m_closeWindow = false;
-
 		return true;
 	#endif // __linux__
 	}
 
 	// Poll for any window events
-	void GWindow::PollEvent()
+	void GWindow::PollEvent(Event& event)
 	{
 	#ifdef _WIN32
 		if (GetMessage(&m_msg, NULL, 0, 0))
@@ -216,24 +319,65 @@ namespace RGE
 		while(XPending(m_display))
 		XNextEvent(m_display, &e);
 
+		// Window close event
 		if (e.type == ClientMessage && e.xclient.data.l[0] == m_wmDeleteMessage) 
 		{
-			glXMakeCurrent(m_display, None, NULL);
-			glXDestroyContext(m_display, m_glRenderingContext);
-			m_closeWindow = true;
+			Event* event = new Event;
+			event->type = EventType::WindowClose;
+
+			m_eventQueue.AddEvent(event);
 		}
 
+		// KeyPressed/KeyReleased events
 		if (e.type == KeyPress)
 		{
-			m_closeWindow = true;
+			Event* event = new Event;
+			event->type = EventType::KeyPressed;
+			event->key.keycode = e.xkey.keycode;
+			// TODO: Find a way to handle held keys
+			// Set to 0 on linux for now
+			event->key.repeated = 0;
+
+			m_eventQueue.AddEvent(event);
+		}
+
+		if (e.type == KeyRelease)
+		{
+			Event* event = new Event;
+			event->type = EventType::KeyReleased;
+			event->key.keycode = e.xkey.keycode;
+
+			m_eventQueue.AddEvent(event);
+		}
+
+		// MouseButtonPressed/MouseButtonReleased events
+		if (e.type == ButtonPress)
+		{
+			Event* event = new Event;
+			event->type = EventType::MouseButtonPressed;
+			event->mouse.button = e.xbutton.button;
+			event->mouse.pos = RGE::Math::v2i(e.xbutton.x, e.xbutton.y);
+
+			m_eventQueue.AddEvent(event);
+		}
+
+		if (e.type == ButtonRelease)
+		{
+			Event* event = new Event;
+			event->type = EventType::MouseButtonReleased;
+			event->mouse.button = e.xbutton.button;
+			event->mouse.pos = RGE::Math::v2i(e.xbutton.x, e.xbutton.y);
+
+			m_eventQueue.AddEvent(event);
 		}
 	#endif // __linux__
-	}
 
-	// Determine if the window should close or not
-	bool GWindow::ShouldClose()
-	{
-		return m_closeWindow;
+		// Grab event messages and cast to the correct type
+		Event* ev = m_eventQueue.GetNextEvent();
+		if (ev) // Will be a nullptr if there are no events on the queue
+		{
+			event = *ev;
+		}
 	}
 
 	void GWindow::FlipDisplay()

@@ -2,7 +2,6 @@
 #define UTIL_HPP
 
 #include <sys/stat.h>
-#include <string>
 
 // Function: FileExists
 /**
