@@ -333,7 +333,7 @@ namespace RGE
 		{
 			Event* event = new Event;
 			event->type = EventType::KeyPressed;
-			event->key.keycode = e.xkey.keycode;
+			event->key.keycode = XkbKeycodeToKeysym(m_display, e.xkey.keycode, 0, e.xkey.state & ShiftMask ? 1 : 0);
 			// TODO: Find a way to handle held keys
 			// Set to 0 on linux for now
 			event->key.repeated = 0;
@@ -345,7 +345,7 @@ namespace RGE
 		{
 			Event* event = new Event;
 			event->type = EventType::KeyReleased;
-			event->key.keycode = e.xkey.keycode;
+			event->key.keycode = XkbKeycodeToKeysym(m_display, e.xkey.keycode, 0, e.xkey.state & ShiftMask ? 1 : 0);
 
 			m_eventQueue.AddEvent(event);
 		}
