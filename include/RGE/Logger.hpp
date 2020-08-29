@@ -2,6 +2,7 @@
 #define LOGGER_HPP
 
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <time.h>
 
@@ -25,20 +26,20 @@ namespace RGE
 	};
 
 	// Define some conosle colors
-	#ifdef _WIN32
-	// See https://ss64.com/nt/color.html for color codes
+#ifdef _WIN32
+// See https://ss64.com/nt/color.html for color codes
 	constexpr auto RED = 12;
 	constexpr auto BLUE = 9;
 	constexpr auto YELLOW = 14;
 	constexpr auto DEFAULT_COLOR = 7;
-	#endif // _WIN32
+#endif // _WIN32
 
-	#ifdef __linux__
+#ifdef __linux__
 	constexpr auto RED = "[1;31m";
 	constexpr auto BLUE = "[1;34m";
 	constexpr auto YELLOW = "[1;33m";
 	constexpr auto DEFAULT_COLOR = "[0m";
-	#endif // __linux__
+#endif // __linux__
 
 	class Logger
 	{
@@ -89,11 +90,11 @@ namespace RGE
 				char dateTimeString[25];
 
 				time(&rawTime);
-			#ifdef _WIN32
+#ifdef _WIN32
 				localtime_s(&timeInfo, &rawTime); // Thread-safe windows implementation
-			#elif defined(__linux__)
+#elif defined(__linux__)
 				localtime_r(&rawTime, &timeInfo); // Thread-safe linux implementation
-			#endif // _WIN32
+#endif // _WIN32
 				strftime(dateTimeString, sizeof(dateTimeString), "%F | %X | ", &timeInfo);
 
 				const char* level = "";
@@ -136,9 +137,9 @@ namespace RGE
 		template<typename First, typename... Args>
 		static void LOGC(LOG_LEVEL logLevel, First msg, Args... msgs)
 		{
-		#ifdef _WIN32
+#ifdef _WIN32
 			HANDLE chandle = GetStdHandle(STD_OUTPUT_HANDLE);
-		#endif // _WIN32
+#endif // _WIN32
 
 			// Get the current time
 			time_t rawTime;
@@ -146,24 +147,24 @@ namespace RGE
 			char dateTimeString[25];
 
 			time(&rawTime);
-		#ifdef _WIN32
+#ifdef _WIN32
 			localtime_s(&timeInfo, &rawTime); // Thread-safe windows implementation
-		#elif defined(__linux__)
+#elif defined(__linux__)
 			localtime_r(&rawTime, &timeInfo); // Thread-safe linux implementation
-		#endif // _WIN32
+#endif // _WIN32
 			strftime(dateTimeString, sizeof(dateTimeString), "%F | %X | ", &timeInfo);
 
-		#ifdef _WIN32
+#ifdef _WIN32
 			int label_color;
 			int msg_color;
 			const char* level = "";
-		#endif // _WIN32
+#endif // _WIN32
 
-		#ifdef __linux__
+#ifdef __linux__
 			const char* label_color = "";
 			const char* msg_color = "";
 			const char* level = "";
-		#endif // __linux__
+#endif // __linux__
 
 			// TODO: Use a switch statement
 			if (logLevel == LOG_INFO)
@@ -179,7 +180,7 @@ namespace RGE
 				msg_color = DEFAULT_COLOR;
 				level = "[DEBUG]: ";
 			}
-			
+
 			else if (logLevel == LOG_WARN)
 			{
 				label_color = YELLOW;
@@ -203,19 +204,19 @@ namespace RGE
 			logMessage << std::endl;
 
 			// Print the actual log message
-		#ifdef _WIN32
+#ifdef _WIN32
 			std::cout << dateTimeString;
 			SetConsoleColor(label_color);
 			std::cout << level;
 			SetConsoleColor(msg_color);
 			std::cout << logMessage.str();
 			SetConsoleColor(DEFAULT_COLOR);
-		#endif // _WIN32
-			
-		#ifdef __linux__
+#endif // _WIN32
+
+#ifdef __linux__
 			// See: https://stackoverflow.com/questions/2353430/how-can-i-print-to-the-console-in-color-in-a-cross-platform-manner for more information about coloring the console
 			printf("%s%c%s%s%c%s%s%c%s", dateTimeString, 27, label_color, level, 27, msg_color, logMessage.str().c_str(), 27, DEFAULT_COLOR);
-		#endif // __linux__
+#endif // __linux__
 
 		}
 
@@ -223,7 +224,7 @@ namespace RGE
 		// Recursive variadic parameter unpacking functions
 		// See: https://raymii.org/s/snippets/Cpp_variadic_template_recursive_example.html
 		template<typename T>
-		static void LOG(std::stringstream &ss, T arg)
+		static void LOG(std::stringstream& ss, T arg)
 		{
 			ss << arg;
 		}
@@ -235,13 +236,13 @@ namespace RGE
 			LOG(ss, args...);
 		}
 
-	#ifdef _WIN32
+#ifdef _WIN32
 		static void SetConsoleColor(int colorCode)
 		{
 			HANDLE cHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 			SetConsoleTextAttribute(cHandle, colorCode);
 		}
-	#endif // _WIN32
+#endif // _WIN32
 
 		bool m_logFileCreated = false;
 		std::fstream m_logFile;

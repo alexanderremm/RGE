@@ -1,6 +1,9 @@
 #pragma once
 
-// For use with RGE applications
-#include "RGE/GWindow.hpp"
 #include "RGE/Logger.hpp"
-#include "RGE/Math.hpp"
+
+// ------------- Windowing ------------------- //
+#include "RGE/Window/GWindow.hpp"
+
+// ------------- Math ------------------------ //
+#include "RGE/Math/Vector.hpp"
