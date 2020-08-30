@@ -1,4 +1,5 @@
 # Fetch Windowing/Input library
+message(STATUS "Fetching GLFW")
 FetchContent_Declare(
 glfw
 GIT_REPOSITORY https://github.com/glfw/glfw.git
@@ -10,12 +11,21 @@ set(GLFW_BUILD_TESTS OFF)
 FetchContent_MakeAvailable(glfw)
 
 # Fetch OpenGL Extension Loader library
+message(STATUS "Fetching GLAD")
 FetchContent_Declare(
 glad
 GIT_REPOSITORY https://github.com/Dav1dde/glad.git
 )
 FetchContent_MakeAvailable(glad)
 
+# Fetch FreeType2 (font rendering library)
+message(STATUS "Fetching FreeType2")
+FetchContent_Declare(
+freetype
+GIT_REPOSITORY https://github.com/freetype/freetype2.git
+GIT_TAG        VER-2-10-2
+)
+FetchContent_MakeAvailable(freetype)
 
 # Note that headers are optional, and do not affect add_library, but they will not
 # show up in IDEs unless they are listed in add_library.
@@ -45,7 +55,7 @@ if (UNIX)
 endif()
 
 # Link to glfw/glad
-target_link_libraries(RGE glfw glad)
+target_link_libraries(RGE glfw glad freetype)
 
 # Set the install location
 install(TARGETS RGE

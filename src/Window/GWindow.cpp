@@ -2,6 +2,11 @@
 
 namespace RGE
 {
+	// =========================================================================
+	// Constructors/Destructors
+	// =========================================================================
+	EventQueue GWindow::m_eventQueue;
+
 	GWindow::GWindow(GWindowProperties windowProperties)
 	{
 		m_windowProps = windowProperties;
@@ -27,6 +32,9 @@ namespace RGE
 		glfwTerminate();
 	}
 
+	// =========================================================================
+	// Public
+	// =========================================================================
 	bool GWindow::Init()
 	{
 		// Initialize GLFW
@@ -61,6 +69,10 @@ namespace RGE
 			return false;
 		}
 
+		// Register event callbacks
+		glfwSetKeyCallback(m_window, KeyCallback);
+		glfwSetMouseButtonCallback(m_window, MouseCallback);
+
 		// Set the current OpenGL context and load OpenGL extensions
 		glfwMakeContextCurrent(m_window);
 		if (!gladLoadGL())
@@ -85,14 +97,98 @@ namespace RGE
 		return glfwWindowShouldClose(m_window);
 	}
 
-	void GWindow::PollEvents()
+	void GWindow::PollEvents(Event& event)
 	{
 		glfwPollEvents();
+
+		// Grab event from window EventQueue
+		Event* ev = m_eventQueue.GetNextEvent();
+		if (ev)
+		{
+			event = *ev;
+		}
 	}
 
 	void GWindow::SwapBuffers()
 	{
 		glfwSwapBuffers(m_window);
+	}
+
+	void* GWindow::GetNativeWindow() const
+	{
+		return m_window;
+	}
+
+	// =========================================================================
+	// Private
+	// =========================================================================
+	void GWindow::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+	{
+		// Keypress
+		if (action == GLFW_PRESS)
+		{
+			// Generate a keypress event
+			Event* e = new Event;
+			e->type = RGE::EventType::KeyPressed;
+			e->key.keycode = key;
+			e->key.repeated = false;
+
+			m_eventQueue.AddEvent(e);
+		}
+
+		// Keypress (held)
+		if (action == GLFW_REPEAT)
+		{
+			// Generate a keyheld event
+			Event* e = new Event;
+			e->type = RGE::EventType::KeyPressed;
+			e->key.keycode = key;
+			e->key.repeated = true;
+
+			m_eventQueue.AddEvent(e);
+		}
+
+		// Keyrelease
+		if (action == GLFW_RELEASE)
+		{
+			// Generate keyreleased event
+			Event* e = new Event;
+			e->type = RGE::EventType::KeyReleased;
+			e->key.keycode = key;
+
+			m_eventQueue.AddEvent(e);
+		}
+	}
+
+	void GWindow::MouseCallback(GLFWwindow* window, int button, int action, int mods)
+	{
+		// Get current mouse position
+		double xpos, ypos;
+		glfwGetCursorPos(window, &xpos, &ypos);
+
+		// Mouse button pressed
+		if (action == GLFW_PRESS)
+		{
+			// Generate mouse button pressed event
+			Event* e = new Event;
+			e->type = RGE::EventType::MouseButtonPressed;
+			e->mouse.button = button;
+			e->mouse.pos = RGE::Math::Vector2<double>(xpos, ypos);
+
+			m_eventQueue.AddEvent(e);
+		}
+
+		// Mouse button released
+		if (action == GLFW_RELEASE)
+		{
+			// Generate mouse button released event
+			Event* e = new Event;
+			e->type = RGE::EventType::MouseButtonReleased;
+			e->mouse.button = button;
+			e->mouse.pos = RGE::Math::Vector2<double>(xpos, ypos);
+
+			m_eventQueue.AddEvent(e);
+		}
 	}
 
 } // RGE

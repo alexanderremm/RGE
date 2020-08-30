@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "Events/EventQueue.hpp"
 #include "RGE/Logger.hpp"
 
 namespace RGE
@@ -65,16 +66,31 @@ namespace RGE
 		/**
 		* \brief Poll for any window events
 		*/
-		void PollEvents();
+		void PollEvents(Event& event);
 
 		/**
 		* \brief Swap display buffers and update screen
 		*/
 		void SwapBuffers();
 
+		/**
+		* \brief Returns a pointer to the native window instance
+		*/
+		void* GetNativeWindow() const;
+
 	private:
+		// Callback to handle keypress/keyrelease events
+		static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+		// Callback to handle mouse clicks
+		static void MouseCallback(GLFWwindow* window, int button, int action, int mods);
+
+		// Windowing
 		GWindowProperties m_windowProps;
 		GLFWwindow* m_window = nullptr;
+
+		// Event Handling
+		static EventQueue m_eventQueue;
 	};
 
 } // RGE
