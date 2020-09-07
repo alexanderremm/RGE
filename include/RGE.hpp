@@ -1,16 +1,25 @@
 #pragma once
 
-#include "RGE/Logger.hpp"
+// -------- Shared Library Exports ----------- //
+#include "RGE/rge_exports.h"
 
-// ------------- Windowing ------------------- //
-#include "RGE/Window/GWindow.hpp"
+// -------- Core Components ------------------ //
+#include "RGE/Core/Logger.hpp"
+#include "RGE/Core/Timer.hpp"
+
+// ------------- Events ---------------------- //
+#include "RGE/Events/Events.hpp"
+
+// ------------- Input ----------------------- //
+#include "RGE/Input/Definitions.hpp"
 
 // ------------- Math ------------------------ //
 #include "RGE/Math/Vector.hpp"
 
-// ------------- Events ---------------------- //
-#include "Events/Events.hpp"
-#include "Events/EventQueue.hpp"
+// ------------- Rendering-------------------- //
+#include "RGE/Render/Shader.hpp"
+#include "RGE/Render/Texture.hpp"
+#include "RGE/Render/TextRenderer.hpp"
 
-// ------------- Input ----------------------- //
-#include "RGE/Input/Definitions.hpp"
+// ------------- Windowing ------------------- //
+#include "RGE/Window/GWindow.hpp"

@@ -7,7 +7,7 @@
 
 namespace RGE
 {
-	enum class EventType
+	enum class RGE_EXPORT EventType
 	{
 		Empty = 0,
 		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
@@ -16,7 +16,7 @@ namespace RGE
 	};
 
 	// Event structure
-	struct Event
+	struct RGE_EXPORT Event
 	{
 		Event() {}
 		EventType type = EventType::Empty;

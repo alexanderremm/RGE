@@ -1,4 +1,9 @@
-#include <RGE.hpp>
+#include <RGE/RGE.hpp>
+#include <glad/glad.h>
+
+#include <sstream>
+
+#include "Render/Fonts/Cousine.ttf.hpp"
 
 int main(int argc, char** argv)
 {
@@ -16,7 +21,7 @@ int main(int argc, char** argv)
 	RGE::GWindowProperties gwProps;
 	gwProps.width = dims.x;
 	gwProps.height = dims.y;
-	gwProps.title = "EXAMPLE_01_Initialization";
+	gwProps.title = "RGEDriver";
 	RGE::GWindow window(gwProps);
 
 	// Initialize the window
@@ -25,13 +30,38 @@ int main(int argc, char** argv)
 		logger.LOG(RGE::LOG_ERROR, "Unable to create the window!");
 	}
 
+	RGE::Render::TextRenderer tr(800, 600);
+	tr.LoadFromMemory(Cousine_Regular_ttf, Cousine_Regular_ttf_len, 12);
+
+	// Initialize OpenGL extensions
+	if (!gladLoadGL())
+	{
+		logger.LOG(RGE::LOG_ERROR, "Unable to load OpenGL extensions!");
+	}
+
 	float theta = 0.0f;
 	bool forward = true;
 	float speed = 0.1f;
 
+	double pt = RGE::Timer::GetTime();
+	int nbFrames = 0;
+	double frameTime = 0;
+	double FPS = 0;
+
 	// Main window loop
 	while (!window.ShouldClose())
 	{
+		// FPS Counter
+		double ct = RGE::Timer::GetTime();
+		nbFrames++;
+		if (ct - pt >= 1.0f)
+		{
+			frameTime = (1000 / double(nbFrames));
+			FPS = 1000 / frameTime;
+			nbFrames = 0;
+			pt += 1.0f;
+		}
+
 		// Check for events
 		RGE::Event e;
 		window.PollEvents(e);
@@ -93,14 +123,13 @@ int main(int argc, char** argv)
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glPushMatrix();
-		glRotatef(theta, 0.0f, 0.0f, 1.0f);
-		glBegin(GL_TRIANGLES);
-		glColor3f(1.0f, 0.0f, 0.0f);   glVertex2f(0.0f, 1.0f);
-		glColor3f(0.0f, 1.0f, 0.0f);   glVertex2f(0.87f, -0.5f);
-		glColor3f(0.0f, 0.0f, 1.0f);   glVertex2f(-0.87f, -0.5f);
-		glEnd();
-		glPopMatrix();
+		std::stringstream frameTimeString;
+		std::stringstream fpsString;
+		frameTimeString << "Frametime: " << frameTime << " ms/frame";
+		fpsString << "FPS: " << FPS;
+
+		tr.RenderText(frameTimeString.str(), 2, 10, 1);
+		tr.RenderText(fpsString.str(), 2, 22, 1);
 
 		// Update the display
 		window.SwapBuffers();

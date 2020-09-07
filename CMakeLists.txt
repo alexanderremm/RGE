@@ -23,12 +23,6 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     # Let's nicely support folders in IDEs
     set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-    # Testing only available if this is the main app
-    # Note this needs to be done in the main CMakeLists
-    # since it calls enable_testing, which must be in the
-    # main CMakeLists.
-    include(CTest)
-
     # Docs only available if this is the main app
     find_package(Doxygen REQUIRED dot)
     if(Doxygen_FOUND)
@@ -41,17 +35,14 @@ endif()
 # FetchContent added in CMake 3.11, downloads during the configure step
 include(FetchContent)
 
+# Add option to build shared library
+option(RGE_BUILD_SHARED "Toggle to build shared libraries" ON)
+
 # The compiled library code is here
 add_subdirectory(src)
 
 # The examples code is here
-set(RGE_BUILD_EXAMPLES ON CACHE BOOL "Toggle building of examples")
-if(RGE_BUILD_EXAMPLES)
-    add_subdirectory(examples)
-endif()
-
-# Testing only available if this is the main app
-# Emergency override RGE_CMAKE_BUILD_TESTING provided as well
-if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR RGE_CMAKE_BUILD_TESTING) AND BUILD_TESTING)
-    add_subdirectory(tests)
+set(RGE_BUILD_SUBPROJECTS ON CACHE BOOL "Toggle building of subprojects")
+if(RGE_BUILD_SUBPROJECTS)
+    add_subdirectory(subprojects)
 endif()

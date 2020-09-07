@@ -1,22 +1,25 @@
 #pragma once
 
+#include "RGE/rge_exports.h"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include "Events/EventQueue.hpp"
-#include "RGE/Logger.hpp"
+#include "RGE/Core/Logger.hpp"
 
 namespace RGE
 {
 	/**
 	* A structure to hold properties of a window definition
 	*/
-	struct GWindowProperties
+	struct RGE_EXPORT GWindowProperties
 	{
 		unsigned width;				// Width of the window
 		unsigned height;			// Height of the window
 		const char* title;			// Title of the window
 		bool resizeable = false;	// Flag for whether the window should be resizeable or not
+		bool vsync = false;			// Flag for whether to use V-Sync or not
 	};
 	/**
 	* \class GWindow
@@ -24,7 +27,7 @@ namespace RGE
 	* \brief The main windowing class used to handle window operations:
 	* open/close/draw/etc.
 	*/
-	class GWindow
+	class RGE_EXPORT GWindow
 	{
 	public:
 		/**

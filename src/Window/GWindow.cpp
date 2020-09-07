@@ -1,3 +1,5 @@
+#define RGE_EXPORTS
+
 #include "RGE/Window/GWindow.hpp"
 
 namespace RGE
@@ -47,6 +49,11 @@ namespace RGE
 			return false;
 		}
 
+		// Set OpenGL version (3.3)
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
 		// Determine whether the window should be resizable or not
 		if (m_windowProps.resizeable)
 		{
@@ -75,19 +82,30 @@ namespace RGE
 
 		// Set the current OpenGL context and load OpenGL extensions
 		glfwMakeContextCurrent(m_window);
-		if (!gladLoadGL())
+		// Enable/Disable vsync
+		if (!m_windowProps.vsync)
 		{
-		#ifdef _DEBUG
+			glfwSwapInterval(0);
+		}
+
+		if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
+		{
+		#ifndef NDEBUG
 			Logger::LOGC(RGE::LOG_DEBUG, "Failed to load the OpenGL extensions");
-		#endif // _DEBUG
+		#endif // NDEBUG
 			// Failed to load OpenGL extensions
 			return false;
 		}
 
 		// Display the OpenGL version
-	#ifdef _DEBUG
+	#ifndef NDEBUG
 		Logger::LOGC(RGE::LOG_DEBUG, "OpenGL: ", GLVersion.major, ".", GLVersion.minor);
-	#endif // _DEBUG
+	#endif // NDEBUG
+
+		// Enable certain OpenGL capabilities
+		glEnable(GL_CULL_FACE);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		return true;
 	}

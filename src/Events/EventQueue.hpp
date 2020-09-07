@@ -2,7 +2,7 @@
 
 #include <queue>
 
-#include "Events.hpp"
+#include "RGE/Events/Events.hpp"
 
 namespace RGE
 {

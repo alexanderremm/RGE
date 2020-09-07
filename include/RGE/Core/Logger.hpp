@@ -1,6 +1,8 @@
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
 
+#include "RGE/rge_exports.h"
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -17,7 +19,7 @@ namespace RGE
 	typedef uint8_t LOG_LEVEL;
 
 	// Define different log levels
-	enum : LOG_LEVEL
+	enum RGE_EXPORT : LOG_LEVEL
 	{
 		LOG_INFO,
 		LOG_DEBUG,
@@ -41,7 +43,7 @@ namespace RGE
 	constexpr auto DEFAULT_COLOR = "[0m";
 #endif // __linux__
 
-	class Logger
+	class RGE_EXPORT Logger
 	{
 	public:
 		Logger(const char* fileName = "")
