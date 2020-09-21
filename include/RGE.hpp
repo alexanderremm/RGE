@@ -4,7 +4,7 @@
 #include "RGE/rge_exports.h"
 
 // -------- Core Components ------------------ //
-#include "RGE/Core/Logger.hpp"
+#include "RGE/Core/Logging.hpp"
 #include "RGE/Core/Timer.hpp"
 
 // ------------- Events ---------------------- //

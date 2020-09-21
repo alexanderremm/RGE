@@ -5,6 +5,9 @@
 #include <cmath>
 #include <iostream>
 
+// Required for printing to log
+#include "spdlog/fmt/ostr.h"
+
 namespace RGE
 {
 	namespace Math

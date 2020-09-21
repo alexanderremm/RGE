@@ -11,7 +11,7 @@ namespace RGE
 			// Initialize and load the FreeType lib
 			if (FT_Init_FreeType(&m_ft)) // all functions return a value different than 0 whenever an error occurred
 			{
-				RGE::Logger::LOGC(RGE::LOG_ERROR, "FreeType: Could not init the library");
+				RGE_CORE_FATAL("FreeType: Could not init the library");
 			}
 
 			// Member variable initialization
@@ -82,7 +82,7 @@ namespace RGE
 			// Load font as a face
 			if (FT_New_Face(m_ft, font.c_str(), 0, &m_face))
 			{
-				RGE::Logger::LOGC(RGE::LOG_ERROR, "FreeType: Failed to load font");
+				RGE_CORE_ERROR("FreeType: Failed to load font");
 			}
 
 			// Set size to load glyph
@@ -96,7 +96,7 @@ namespace RGE
 				// Load character glyph
 				if (FT_Load_Char(m_face, c, FT_LOAD_RENDER))
 				{
-					RGE::Logger::LOGC(RGE::LOG_ERROR, "FreeType: Failed to load glyph");
+					RGE_CORE_WARN("FreeType: Failed to load glyph");
 					continue;
 				}
 				// Generate the texture
@@ -141,7 +141,7 @@ namespace RGE
 			// Load font as a face
 			if (FT_New_Memory_Face(m_ft, fontBuffer, fontBufferLen, 0, &m_face))
 			{
-				RGE::Logger::LOGC(RGE::LOG_ERROR, "FreeType: Failed to load font");
+				RGE_CORE_ERROR("FreeType: Failed to load font");
 			}
 
 			// Set size to load glyph
@@ -155,7 +155,7 @@ namespace RGE
 				// Load character glyph
 				if (FT_Load_Char(m_face, c, FT_LOAD_RENDER))
 				{
-					RGE::Logger::LOGC(RGE::LOG_ERROR, "FreeType: Failed to load glyph");
+					RGE_CORE_WARN("FreeType: Failed to load glyph");
 					continue;
 				}
 				// Generate the texture

@@ -6,7 +6,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Events/EventQueue.hpp"
-#include "RGE/Core/Logger.hpp"
+#include "RGE/Core/Logging.hpp"
 
 namespace RGE
 {

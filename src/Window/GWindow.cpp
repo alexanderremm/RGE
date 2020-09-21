@@ -42,8 +42,8 @@ namespace RGE
 		// Initialize GLFW
 		if (!glfwInit())
 		{
-		#ifdef _DEBUG
-			Logger::LOGC(RGE::LOG_DEBUG, "Failed to initialize GLFW");
+		#ifndef NDEBUG
+			RGE_CORE_FATAL("Failed to initialize GLFW");
 		#endif // _DEBUG
 			// Initialization failed
 			return false;
@@ -69,8 +69,8 @@ namespace RGE
 
 		if (!m_window)
 		{
-		#ifdef _DEBUG
-			Logger::LOGC(RGE::LOG_DEBUG, "Failed to create the GLFW window");
+		#ifndef NDEBUG
+			RGE_CORE_FATAL("Failed to create the GLFW window");
 		#endif // _DEBUG
 			// Window or OpenGL context creation failed
 			return false;
@@ -91,7 +91,7 @@ namespace RGE
 		if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
 		{
 		#ifndef NDEBUG
-			Logger::LOGC(RGE::LOG_DEBUG, "Failed to load the OpenGL extensions");
+			RGE_CORE_WARN("Failed to load the OpenGL extensions");
 		#endif // NDEBUG
 			// Failed to load OpenGL extensions
 			return false;
@@ -99,7 +99,8 @@ namespace RGE
 
 		// Display the OpenGL version
 	#ifndef NDEBUG
-		Logger::LOGC(RGE::LOG_DEBUG, "OpenGL: ", GLVersion.major, ".", GLVersion.minor);
+		RGE_CORE_INFO("OpenGL Version: {}.{}", GLVersion.major, GLVersion.minor);
+		RGE_CORE_INFO("Device: {}", glGetString(GL_RENDERER));
 	#endif // NDEBUG
 
 		// Enable certain OpenGL capabilities

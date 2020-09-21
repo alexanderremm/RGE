@@ -1,7 +1,7 @@
 #pragma once
 
 // -------- Core Components ------------------ //
-#include "Core/Logger.hpp"
+#include "Core/Logging.hpp"
 #include "Core/ResourceManager.hpp"
 #include "Core/Timer.hpp"
 

@@ -7,16 +7,16 @@
 
 int main(int argc, char** argv)
 {
-	// Create a logger
-	RGE::Logger logger("DEBUG.log");
-	logger.LOG(RGE::LOG_INFO, "Started the Game window");
+	// Initialize logging
+	RGE::Logging::Init();
+	RGE_INFO("Started the Game window");
 
 	// Create a window context
 	RGE::Math::Vector2 dims(800, 600);
 
 	// Test some vector operations
-	logger.LOGC(RGE::LOG_DEBUG, "Magnitude: ", dims.Magnitude());
-	logger.LOGC(RGE::LOG_DEBUG, "Normal: ", dims.Normalize());
+	//RGE_TRACE("Magnitude: {}", dims.Magnitude());
+	//RGE_TRACE("Normal: {}", dims.Normalize());
 
 	RGE::GWindowProperties gwProps;
 	gwProps.width = dims.x;
@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 	// Initialize the window
 	if (!window.Init())
 	{
-		logger.LOG(RGE::LOG_ERROR, "Unable to create the window!");
+		RGE_ERROR("Unable to create the window!");
 	}
 
 	RGE::Render::TextRenderer tr(800, 600);
@@ -36,7 +36,7 @@ int main(int argc, char** argv)
 	// Initialize OpenGL extensions
 	if (!gladLoadGL())
 	{
-		logger.LOG(RGE::LOG_ERROR, "Unable to load OpenGL extensions!");
+		RGE_WARN("Unable to load OpenGL extensions!");
 	}
 
 	float theta = 0.0f;
@@ -70,7 +70,7 @@ int main(int argc, char** argv)
 		{
 		case RGE::EventType::KeyPressed:
 		{
-			logger.LOG(RGE::LOG_INFO, "KeyPressed: ", e.key.keycode, " (repeated: ", e.key.repeated, ")");
+			RGE_TRACE("KeyPressed: {} (repeated: {})", e.key.keycode, e.key.repeated);
 			if (e.key.keycode == RGE_KEY_LEFT)
 			{
 				forward = false;
@@ -95,7 +95,7 @@ int main(int argc, char** argv)
 
 		case RGE::EventType::MouseButtonPressed:
 		{
-			logger.LOG(RGE::LOG_INFO, "MouseButtonPressed: ", e.mouse.button, " (position: ", e.mouse.pos, ")");
+			RGE_TRACE("MouseButtonPressed: {} (position: {})", e.mouse.button, e.mouse.pos);
 			if (e.mouse.button == RGE_MOUSE_BUTTON_1) // Left mouse button
 			{
 				forward = false;
@@ -144,7 +144,7 @@ int main(int argc, char** argv)
 		}
 	}
 
-	logger.LOG(RGE::LOG_INFO, "Closing the game window");
+	RGE_INFO("Closing the game window");
 
 	return 0;
 }

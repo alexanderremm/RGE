@@ -44,8 +44,17 @@ GIT_TAG        0.9.9.8
 )
 FetchContent_MakeAvailable(glm)
 
+# Fetch spdlog (logging library)
+message(STATUS "Fetching spdlog")
+FetchContent_Declare(
+    spdlog
+    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+    GIT_TAG        v1.8.0
+)
+FetchContent_MakeAvailable(spdlog)
+
 # Create list of 3rd party libs
-set(THIRD_PARTY_LIBS glfw glad freetype glm)
+set(THIRD_PARTY_LIBS glfw glad freetype glm spdlog)
 
 # Note that headers are optional, and do not affect add_library, but they will not
 # show up in IDEs unless they are listed in add_library.
@@ -56,9 +65,6 @@ file(GLOB_RECURSE SRC_LIST CONFIGURE_DEPENDS "${RGE_SOURCE_DIR}/src/*.cpp" "${RG
 
 # This is the "object library" target: compiles the sources only once
 add_library(RGE_objlib OBJECT ${SRC_LIST} ${HEADER_LIST})
-
-# Shared libraries need PIC
-#set_property(TARGET RGE_objlib PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # Include directories
 target_include_directories(RGE_objlib PUBLIC ../include "${RGE_SOURCE_DIR}/src")
@@ -83,7 +89,7 @@ if (RGE_BUILD_SHARED)
     # To build shared libraries in Windows, we set CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS to TRUE.
     # See https://cmake.org/cmake/help/v3.4/variable/CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS.html
     # See https://blog.kitware.com/create-dlls-on-windows-without-declspec-using-new-cmake-export-all-feature/
-    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+    # set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
     # Create shared library
     add_library(RGE SHARED $<TARGET_OBJECTS:RGE_objlib>)

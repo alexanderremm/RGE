@@ -153,8 +153,8 @@ namespace RGE
 				if (!success)
 				{
 					glGetShaderInfoLog(object, 1024, NULL, infoLog);
-					RGE::Logger::LOGC(RGE::LOG_ERROR, "ERROR::SHADER: Compile-time error: Type: ", type);
-					RGE::Logger::LOGC(RGE::LOG_INFO, infoLog, "\n -- --------------------------------------------------- -- ");
+					RGE_CORE_ERROR("Shader compile-time error! Type: {}", type);
+					RGE_CORE_ERROR(infoLog, "\n -- --------------------------------------------------- -- ");
 				}
 			}
 			else
@@ -163,8 +163,8 @@ namespace RGE
 				if (!success)
 				{
 					glGetProgramInfoLog(object, 1024, NULL, infoLog);
-					RGE::Logger::LOGC(RGE::LOG_ERROR, "ERROR::SHADER: Link-time error: Type: ", type);
-					RGE::Logger::LOGC(RGE::LOG_INFO, infoLog, "\n -- --------------------------------------------------- -- ");
+					RGE_CORE_ERROR("Shader link-time error: Type: {}", type);
+					RGE_CORE_ERROR(infoLog, "\n -- --------------------------------------------------- -- ");
 				}
 			}
 		}

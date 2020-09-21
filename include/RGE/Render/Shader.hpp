@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "RGE/Core/Logger.hpp"
+#include "RGE/Core/Logging.hpp"
 #include "RGE/Math/Vector.hpp"
 #include "RGE/Math/Matrix.hpp"
 
