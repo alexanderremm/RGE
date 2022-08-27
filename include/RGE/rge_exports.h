@@ -9,20 +9,20 @@
 #  ifndef RGE_EXPORT
 #    ifdef RGE_EXPORTS
         /* We are building this library */
-#      define RGE_EXPORT __declspec(dllexport)
+#      define RGE_EXPORT __attribute__((visibility("default")))
 #    else
         /* We are using this library */
-#      define RGE_EXPORT __declspec(dllimport)
+#      define RGE_EXPORT __attribute__((visibility("default")))
 #    endif
 #  endif
 
 #  ifndef RGE_NO_EXPORT
-#    define RGE_NO_EXPORT 
+#    define RGE_NO_EXPORT __attribute__((visibility("hidden")))
 #  endif
 #endif
 
 #ifndef RGE_DEPRECATED
-#  define RGE_DEPRECATED __declspec(deprecated)
+#  define RGE_DEPRECATED __attribute__ ((__deprecated__))
 #endif
 
 #ifndef RGE_DEPRECATED_EXPORT

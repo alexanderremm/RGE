@@ -16,12 +16,12 @@ install(TARGETS RGEDriver
 # Unit Test Project
 # =============================================================================
 FetchContent_Declare(
-catch2
-GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-GIT_TAG        v2.13.0
+googletest
+GIT_REPOSITORY https://github.com/google/googletest.git
+GIT_TAG        release-1.12.1
 )
-FetchContent_MakeAvailable(catch2)
-# Adds Catch2::Catch2
+FetchContent_MakeAvailable(googletest)
+# Adds gtest
 
 # Tests need to be added as executables first
 add_executable(RGETest RGETest/RGETest.cpp)
@@ -33,7 +33,7 @@ target_compile_features(RGETest PRIVATE cxx_std_17)
 add_dependencies(RGETest RGE_static)
 
 # Should be linked to the main library, as well as the Catch2 testing library
-target_link_libraries(RGETest PRIVATE RGE_static Catch2::Catch2)
+target_link_libraries(RGETest PRIVATE RGE_static gtest_main)
 
 install(TARGETS RGETest
             RUNTIME DESTINATION bin/)

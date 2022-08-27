@@ -128,8 +128,16 @@ int main(int argc, char** argv)
 		frameTimeString << "Frametime: " << frameTime << " ms/frame";
 		fpsString << "FPS: " << FPS;
 
+		std::stringstream direction;
+		direction << "Direction: ";
+		forward ? direction << "Forward" : direction << "Backward";
+		std::stringstream speedString;
+		speedString << "Speed: " << speed;
+
 		tr.RenderText(frameTimeString.str(), 2, 10, 1);
 		tr.RenderText(fpsString.str(), 2, 22, 1);
+		tr.RenderText(direction.str(), 650, 10, 1);
+		tr.RenderText(speedString.str(), 650, 22, 1);
 
 		// Update the display
 		window.SwapBuffers();
