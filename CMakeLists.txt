@@ -27,13 +27,8 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     # Let's nicely support folders in IDEs
     set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-    # Look for Doxygen
-    find_package(Doxygen REQUIRED dot)
-    if(Doxygen_FOUND)
-	    add_subdirectory(docs)
-    else()
-	    message(STATUS "Doxygen not found, not building docs")
-    endif()
+    # Set where our CMake modules are located
+    set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 endif()
 
 # ============================================================================ #
@@ -55,6 +50,18 @@ if(RGE_BUILD_SHARED)
     endif()
 else()
     set(build_type STATIC)
+endif()
+
+# Option to generate documentation
+option(RGE_BUILD_DOCS "Toggle whether to generate Doxygen documentation" ON)
+if(RGE_BUILD_DOCS)
+    # Look for Doxygen
+    find_package(Doxygen REQUIRED dot)
+    if(Doxygen_FOUND)
+        include(documentation)
+    else()
+	    message(STATUS "Doxygen not found, not building docs")
+    endif()
 endif()
 
 # ============================================================================ #
@@ -98,6 +105,5 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-# Set where our CMake modules are located
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+# Include the installation configurations
 include(installing)

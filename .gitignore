@@ -357,3 +357,6 @@ build/
 
 # Development/Install directory
 install/
+
+# Doxygen generated documentation
+docs/html/
