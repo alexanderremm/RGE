@@ -47,11 +47,20 @@ include(FetchContent)
 # ============================================================================ #
 # Option to build shared library
 option(RGE_BUILD_SHARED "Toggle to build shared libraries" ON)
+if(RGE_BUILD_SHARED)
+    set(build_type SHARED)
+    # Check if on Windows (must export all symbols)
+    if(WIN32)
+        set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+    endif()
+else()
+    set(build_type STATIC)
+endif()
 
 # ============================================================================ #
 #                              Library Files                                   #
 # ============================================================================ #
-add_library(${PROJECT_NAME} STATIC)
+add_library(${PROJECT_NAME} ${build_type})
 
 # Source files
 target_sources(${PROJECT_NAME}
