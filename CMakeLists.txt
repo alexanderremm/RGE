@@ -31,11 +31,8 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 endif()
 
-# ============================================================================ #
-#                              Third-party                                     #
-# ============================================================================ #
-# FetchContent added in CMake 3.11, downloads during the configure step
-include(FetchContent)
+# Force Position Independent Code
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # ============================================================================ #
 #                              Options                                         #
@@ -107,3 +104,23 @@ target_include_directories(${PROJECT_NAME}
 
 # Include the installation configurations
 include(installing)
+
+# ============================================================================ #
+#                              Third-party                                     #
+# ============================================================================ #
+include(externals)
+
+# Define dependencies
+set(sfml_libs
+    sfml-system
+    sfml-window
+    sfml-network
+    sfml-graphics
+    sfml-audio
+)
+
+# Make the third-party libs dependencies
+add_dependencies(${PROJECT_NAME} ${sfml_libs} spdlog)
+
+# Link to external dependencies
+target_link_libraries(${PROJECT_NAME} PRIVATE ${sfml_libs} spdlog)
