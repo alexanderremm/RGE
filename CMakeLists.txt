@@ -61,6 +61,12 @@ if(RGE_BUILD_DOCS)
     endif()
 endif()
 
+# Option to build tests
+option(RGE_BUILD_TESTS "Toggle whether to build tests" ON)
+if(RGE_BUILD_TESTS)
+    add_subdirectory(tests)
+endif()
+
 # ============================================================================ #
 #                              Library Files                                   #
 # ============================================================================ #
